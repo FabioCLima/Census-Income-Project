@@ -8,9 +8,10 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import fbeta_score, precision_score, recall_score
 
-from census.data import EXPECTED_COLUMNS
+from census.data_loader import EXPECTED_COLUMNS
 
-MODEL_DIR = Path("model")
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODEL_DIR = _PROJECT_ROOT / "model"
 MODEL_PATH = MODEL_DIR / "model.pkl"
 ENCODER_PATH = MODEL_DIR / "encoder.pkl"
 

@@ -22,6 +22,7 @@ dev = [
     "httpx>=0.28.1",
     "ipykernel>=7.2.0",
     "jupyter>=1.1.1",
+    "loguru>=0.7.3",
     "pytest>=9.0.3",
     "pytest-cov>=7.1.0",
     "ruff>=0.15.10",
@@ -37,14 +38,10 @@ target-version = "py313"
 fix = true
 show-fixes = true
 indent-width = 4
-exclude = ["venv", ".venv", "env", ".env", "node_modules", "__pycache__"]
+exclude = ["venv", ".venv", "env", ".env", "node_modules", "__pycache__", "notebooks"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "UP", "B", "SIM", "RUF"]
-
-[tool.ruff.lint.per-file-ignores]
-"main.py" = ["E402"]
-"train_model.py" = ["E402"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -55,9 +52,17 @@ line-ending = "lf"
 known-first-party = ["census"]
 
 [tool.pytest.ini_options]
-addopts = "-s --color=yes --tb=short"
-pythonpath = ["src"]
+addopts = "--color=yes --tb=short"
+pythonpath = ["src", "."]
 testpaths = ["tests"]
+
+[tool.coverage.run]
+source = ["src/census"]
+omit = ["*/__pycache__/*", "*/tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 60
 
 [build-system]
 requires = ["setuptools>=80", "wheel"]

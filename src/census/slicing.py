@@ -6,7 +6,8 @@ import pandas as pd
 
 from census.model import compute_metrics, inference
 
-SLICE_OUTPUT_PATH = Path("model") / "slice_output.txt"
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SLICE_OUTPUT_PATH = _PROJECT_ROOT / "model" / "slice_output.txt"
 
 
 def compute_slice_metrics(
@@ -35,5 +36,6 @@ def compute_slice_metrics(
 
 
 def save_slice_metrics(lines: list[str]) -> None:
+    SLICE_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     content = "\n".join(lines) + ("\n" if lines else "")
     SLICE_OUTPUT_PATH.write_text(content, encoding="utf-8")
