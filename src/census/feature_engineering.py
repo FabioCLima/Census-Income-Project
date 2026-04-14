@@ -83,7 +83,12 @@ def plot_missing_values(
         "#e05c5c" if pct > 5 else "#f0a040" if pct > 1 else "#aaaaaa"
         for pct in missing_pct
     ]
-    bars = ax.barh(missing_pct.index, missing_pct.values, color=colours, edgecolor="white")
+    bars = ax.barh(
+        missing_pct.index,
+        missing_pct.values,
+        color=colours,
+        edgecolor="white",
+    )
 
     for bar, pct in zip(bars, missing_pct.values, strict=True):
         ax.text(
@@ -161,12 +166,24 @@ def plot_numeric_distributions(
         ax_raw.tick_params(axis="x", labelsize=8)
 
         # Row 1 — scaled distribution
-        ax_scaled.hist(scaled_values, bins=40, color="#6acc65", edgecolor="white", alpha=0.85)
+        ax_scaled.hist(
+            scaled_values,
+            bins=40,
+            color="#6acc65",
+            edgecolor="white",
+            alpha=0.85,
+        )
         ax_scaled.tick_params(axis="x", labelsize=8)
         ax_scaled.set_ylabel("Count" if col_idx == 0 else "")
 
         # Annotate mean and std on scaled row
-        ax_scaled.axvline(0, color="#e05c5c", linestyle="--", linewidth=1.2, label="mean=0")
+        ax_scaled.axvline(
+            0,
+            color="#e05c5c",
+            linestyle="--",
+            linewidth=1.2,
+            label="mean=0",
+        )
         ax_scaled.text(
             0.97, 0.93, f"μ={scaled_values.mean():.2f}\nσ={scaled_values.std():.2f}",
             transform=ax_scaled.transAxes, ha="right", va="top",
@@ -433,6 +450,8 @@ def save_all_figures(
 # ── CLI entry-point ───────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
+    from loguru import logger
+
     from census.configure_logging import configure_logging
     from census.preprocessing import (
         build_preprocessor,
@@ -441,7 +460,6 @@ if __name__ == "__main__":
         split_features_target,
         split_train_test,
     )
-    from loguru import logger
 
     _LOG_DIR = _PROJECT_ROOT / "logs" / "feature_engineering_log"
     configure_logging(_LOG_DIR, "feature_engineering")

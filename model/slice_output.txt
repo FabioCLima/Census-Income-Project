@@ -1,1 +1,3 @@
-
+[slice_feature=sex]
+[RandomForestClassifier | sex=Female] precision=0.8079  recall=0.5837  f1=0.6777
+[RandomForestClassifier | sex=Male] precision=0.7524  recall=0.6387  f1=0.6909
