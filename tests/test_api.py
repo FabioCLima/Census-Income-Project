@@ -37,17 +37,22 @@ def test_root_returns_ok() -> None:
 # ── /predict — happy path ──────────────────────────────────────────────────────
 
 
-def test_predict_returns_placeholder_when_model_is_missing() -> None:
+def test_predict_returns_200_with_valid_payload() -> None:
     response = client.post("/predict", json=VALID_PAYLOAD)
 
     assert response.status_code == 200
-    assert response.json() == {"prediction": "model_not_trained"}
 
 
 def test_predict_response_has_prediction_key() -> None:
     response = client.post("/predict", json=VALID_PAYLOAD)
 
     assert "prediction" in response.json()
+
+
+def test_predict_response_is_valid_label() -> None:
+    response = client.post("/predict", json=VALID_PAYLOAD)
+
+    assert response.json()["prediction"] in {">50K", "<=50K", "model_not_trained"}
 
 
 # ── /predict — validation ──────────────────────────────────────────────────────

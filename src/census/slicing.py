@@ -19,7 +19,7 @@ from pathlib import Path
 import pandas as pd
 from sklearn.pipeline import Pipeline
 
-from census.train_model import ModelMetrics, compute_metrics
+from census.evaluation import ModelMetrics, compute_metrics
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SLICE_OUTPUT_PATH = _PROJECT_ROOT / "model" / "slice_output.txt"
