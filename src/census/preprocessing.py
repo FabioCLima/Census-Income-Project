@@ -5,7 +5,8 @@ Implements Phases 3.5, 4, and 5 from docs/pipeline_architecture.md:
     Phase 3.5  split_features_target()  — separate X / y, encode target as 0/1
     Phase 4    split_train_test()        — stratified 80/20 split
     Phase 5    build_preprocessor()      — ColumnTransformer (numeric + categorical)
-               fit_preprocessor()        — fit on X_train only, then transform both splits
+               fit_preprocessor()        — fit on X_train only,
+                                           then transform both splits
 """
 
 from __future__ import annotations
