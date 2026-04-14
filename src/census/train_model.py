@@ -50,6 +50,8 @@ from census.preprocessing import build_preprocessor
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MODEL_DIR = _PROJECT_ROOT / "model"
 PIPELINE_PATH = MODEL_DIR / "census_pipeline.pkl"
+ENCODER_PATH = MODEL_DIR / "encoder.pkl"
+MODEL_PATH = MODEL_DIR / "model.pkl"
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 RANDOM_STATE: int = 42
@@ -183,10 +185,42 @@ def save_pipeline(
     return dest.resolve()
 
 
-# ── CLI entry-point ───────────────────────────────────────────────────────────
+def save_categorical_encoder(
+    pipeline: Pipeline,
+    path: Path | str = ENCODER_PATH,
+) -> Path:
+    """Persist the fitted categorical encoder extracted from a trained pipeline.
 
-if __name__ == "__main__":
-    from census.configure_logging import configure_logging
+    This keeps compatibility with course requirements that ask to save both the
+    model and categorical encoder artifacts.
+    """
+    dest = Path(path)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    encoder = (
+        pipeline.named_steps["preprocessor"]
+        .named_transformers_["cat"]
+        .named_steps["encoder"]
+    )
+    joblib.dump(encoder, dest)
+    logger.info("save_categorical_encoder | path={}", dest.resolve())
+    return dest.resolve()
+
+
+def save_model_estimator(
+    pipeline: Pipeline,
+    path: Path | str = MODEL_PATH,
+) -> Path:
+    """Persist only the fitted estimator step for compatibility artifacts."""
+    dest = Path(path)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    model = pipeline.named_steps["model"]
+    joblib.dump(model, dest)
+    logger.info("save_model_estimator | path={}", dest.resolve())
+    return dest.resolve()
+
+
+def run_training_pipeline() -> tuple[Path, Path, Path]:
+    """Execute end-to-end training and persistence for the best CV model."""
     from census.evaluation import (
         build_results_table,
         cross_validate_pipeline,
@@ -198,21 +232,12 @@ if __name__ == "__main__":
         split_train_test,
     )
 
-    _LOG_DIR = _PROJECT_ROOT / "logs" / "training_log"
-    configure_logging(_LOG_DIR, "training")
-
-    # ── Load and split ─────────────────────────────────────────────────────
     logger.info("Loading cleaned data…")
     df = load_cleaned_data()
     features, target = split_features_target(df)
-    # split_train_test → (features_train, features_test, target_train, target_test).
-    # features_test / target_test are reserved for slice evaluation in slicing.py;
-    # model selection here is based on CV on the training set only.
     features_train, _, target_train, _ = split_train_test(features, target)
 
-    # ── Cross-validation — training data only ─────────────────────────────
     logger.info("Running cross-validation (StratifiedKFold, n_splits=5)…")
-
     baseline_cv = cross_validate_pipeline(
         build_pipeline(build_baseline()), features_train, target_train
     )
@@ -220,7 +245,6 @@ if __name__ == "__main__":
         build_pipeline(build_random_forest()), features_train, target_train
     )
 
-    # ── Results table ──────────────────────────────────────────────────────
     results_df = build_results_table(
         {
             "DecisionTreeClassifier": baseline_cv,
@@ -230,7 +254,6 @@ if __name__ == "__main__":
     saved_csv = save_results(results_df)
     logger.info("CV results saved → {}", saved_csv)
 
-    # ── Model selection (CV mean F1 on training data) ──────────────────────
     baseline_mean_f1 = float(
         results_df.loc[
             (results_df["model_name"] == "DecisionTreeClassifier")
@@ -251,7 +274,6 @@ if __name__ == "__main__":
     logger.info("  Baseline  (DecisionTree) : {:.4f}", baseline_mean_f1)
     logger.info("  Candidate (RandomForest) : {:.4f}", rf_mean_f1)
 
-    # ── Retrain best model on full training set ────────────────────────────
     if rf_mean_f1 >= baseline_mean_f1:
         best_pipeline = build_pipeline(build_random_forest())
         best_name = "RandomForestClassifier"
@@ -262,6 +284,21 @@ if __name__ == "__main__":
     logger.info("Selected: {} — retraining on full training set…", best_name)
     train_pipeline(best_pipeline, features_train, target_train)
 
-    # ── Persist ────────────────────────────────────────────────────────────
-    saved_path = save_pipeline(best_pipeline)
-    logger.info("Pipeline saved → {}", saved_path)
+    saved_pipeline = save_pipeline(best_pipeline)
+    saved_encoder = save_categorical_encoder(best_pipeline)
+    saved_model = save_model_estimator(best_pipeline)
+
+    logger.info("Pipeline saved → {}", saved_pipeline)
+    logger.info("Encoder saved  → {}", saved_encoder)
+    logger.info("Model saved    → {}", saved_model)
+    return saved_pipeline, saved_encoder, saved_model
+
+
+# ── CLI entry-point ───────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    from census.configure_logging import configure_logging
+
+    _LOG_DIR = _PROJECT_ROOT / "logs" / "training_log"
+    configure_logging(_LOG_DIR, "training")
+    run_training_pipeline()

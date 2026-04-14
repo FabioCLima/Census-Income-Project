@@ -1,53 +1,17 @@
-"""Entry-point script to train and persist the Census Income model.
+"""Project training entrypoint.
 
-Usage:
-    uv run python train_model.py
-
-Expects the cleaned dataset at data/data_cleaned/census_cleaned.csv.
-Run the EDA/cleaning notebook first if the file does not exist.
+Runs the end-to-end training workflow implemented in ``census.train_model``:
+data loading, splitting, cross-validation model selection, and artifact
+persistence (pipeline, estimator, and categorical encoder).
 """
 
-from pathlib import Path
-
-import joblib
-import pandas as pd
-
-from census.data_loader import TARGET_COLUMN, process_data
-from census.model import MODEL_PATH, train_model
-
-DATA_PATH = Path("data") / "data_cleaned" / "census_cleaned.csv"
-
-CATEGORICAL_FEATURES = [
-    "workclass",
-    "education",
-    "marital-status",
-    "occupation",
-    "relationship",
-    "race",
-    "sex",
-    "native-country",
-]
+from census.configure_logging import configure_logging
+from census.train_model import run_training_pipeline
 
 
 def main() -> None:
-    if not DATA_PATH.exists():
-        raise FileNotFoundError(
-            f"Training data not found at '{DATA_PATH}'. "
-            "Run the data cleaning notebook to generate it first."
-        )
-
-    dataframe = pd.read_csv(DATA_PATH)
-    features, target = process_data(
-        dataframe,
-        categorical_features=CATEGORICAL_FEATURES,
-    )
-    if target is None:
-        raise ValueError(f"Target column '{TARGET_COLUMN}' not found in training data.")
-
-    model = train_model(features, target)
-    MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
-    joblib.dump(model, MODEL_PATH)
-    print(f"Model saved to {MODEL_PATH}")
+    configure_logging("logs/training_log", "training")
+    run_training_pipeline()
 
 
 if __name__ == "__main__":

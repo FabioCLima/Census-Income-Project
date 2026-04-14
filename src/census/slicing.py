@@ -17,9 +17,17 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
+from loguru import logger
 from sklearn.pipeline import Pipeline
 
+from census.data_loader import CATEGORICAL_FEATURES
 from census.evaluation import ModelMetrics, compute_metrics
+from census.inference import load_pipeline
+from census.preprocessing import (
+    load_cleaned_data,
+    split_features_target,
+    split_train_test,
+)
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SLICE_OUTPUT_PATH = _PROJECT_ROOT / "model" / "slice_output.txt"
@@ -27,6 +35,7 @@ SLICE_OUTPUT_PATH = _PROJECT_ROOT / "model" / "slice_output.txt"
 # Minimum slice size to report metrics; smaller slices are flagged but skipped
 # (too few samples to produce stable estimates — architecture doc, Phase 7.2).
 MIN_SLICE_SAMPLES: int = 30
+DEFAULT_SLICE_FEATURES: tuple[str, ...] = ("sex",)
 
 
 def compute_slice_metrics(
@@ -102,3 +111,82 @@ def save_slice_metrics(lines: list[str]) -> None:
     SLICE_OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     content = "\n".join(lines) + ("\n" if lines else "")
     SLICE_OUTPUT_PATH.write_text(content, encoding="utf-8")
+
+
+def run_slice_evaluation(
+    pipeline: Pipeline,
+    features_test: pd.DataFrame,
+    target_test: pd.Series,
+    *,
+    slice_features: tuple[str, ...] = DEFAULT_SLICE_FEATURES,
+) -> list[str]:
+    """Compute and format slice metrics for selected categorical features."""
+    lines: list[str] = []
+    for feature in slice_features:
+        if feature not in features_test.columns:
+            logger.warning("run_slice_evaluation | slice_feature_missing={}", feature)
+            continue
+
+        feature_results = compute_slice_metrics(
+            features_test, target_test, pipeline, slice_feature=feature
+        )
+        if not feature_results:
+            lines.append(
+                f"[slice_feature={feature}] no slices with n >= {MIN_SLICE_SAMPLES}"
+            )
+            continue
+
+        lines.append(f"[slice_feature={feature}]")
+        lines.extend(format_slice_metrics(feature_results))
+        lines.append("")
+
+    # Trim trailing blank line for cleaner output.
+    if lines and lines[-1] == "":
+        lines.pop()
+    return lines
+
+
+def run_slice_pipeline(
+    *,
+    slice_features: tuple[str, ...] = DEFAULT_SLICE_FEATURES,
+) -> Path:
+    """Execute the full slice-evaluation workflow and persist output.
+
+    Returns:
+        Path to the saved ``slice_output.txt`` file.
+    """
+    pipeline = load_pipeline()
+    if pipeline is None:
+        raise FileNotFoundError(
+            "Trained pipeline not found at model/census_pipeline.pkl. "
+            "Run `python train_model.py` first."
+        )
+
+    df = load_cleaned_data()
+    features, target = split_features_target(df)
+    _, features_test, _, target_test = split_train_test(features, target)
+
+    valid_slice_features = tuple(
+        feature for feature in slice_features if feature in CATEGORICAL_FEATURES
+    )
+    lines = run_slice_evaluation(
+        pipeline,
+        features_test,
+        target_test,
+        slice_features=valid_slice_features,
+    )
+    save_slice_metrics(lines)
+    logger.info(
+        "Slice metrics saved | path={} | lines={}",
+        SLICE_OUTPUT_PATH,
+        len(lines),
+    )
+    return SLICE_OUTPUT_PATH
+
+
+if __name__ == "__main__":
+    from census.configure_logging import configure_logging
+
+    _LOG_DIR = _PROJECT_ROOT / "logs" / "slicing_log"
+    configure_logging(_LOG_DIR, "slicing")
+    run_slice_pipeline()
