@@ -220,3 +220,13 @@ data/*.csv
 
 # Project: screenshots (add real ones, not empty placeholders)
 screenshots/*.png
+
+# Project: local/generated artifacts and study notes
+logs/
+data/data_raw/
+data/data_cleaned/
+data/data_processed/
+notebooks/
+screenshots/
+docs/
+*.canvas

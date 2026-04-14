@@ -1,6 +1,6 @@
 import pandas as pd
 
-from census.data import clean_census_data, process_data
+from census.data_loader import clean_census_data, process_data
 
 
 def test_clean_census_data_strips_spaces() -> None:
