@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from census.model import predict_from_payload
+from census.inference import predict_from_payload
 from census.schemas import PredictRequest, PredictResponse
 
 app = FastAPI(

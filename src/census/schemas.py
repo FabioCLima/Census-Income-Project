@@ -29,27 +29,31 @@ class PredictRequest(BaseModel):
     native_country: str = Field(..., alias="native-country")
 
     def to_feature_dict(self) -> dict[str, object]:
-        """Return a dict keyed by the original hyphenated column names.
+        """Return a cleaned feature dict matching the trained pipeline schema.
 
-        The underlying model was trained on features with hyphenated column
-        names (e.g. "education-num"), so we must reconstruct that format
-        before calling inference.
+        Applies the same transformations as clean_raw_input():
+        - Renames fnlwgt → fnlgt (the actual CSV header used during training).
+        - Converts hyphenated names to underscores.
+        - Drops 'education' (redundant with education_num; excluded at training).
+
+        The returned dict can be passed directly to predict_from_payload() as a
+        single-row payload.
         """
         return {
             "age": self.age,
+            "fnlgt": self.fnlwgt,            # renamed: fnlwgt → fnlgt
+            "education_num": self.education_num,
+            "capital_gain": self.capital_gain,
+            "capital_loss": self.capital_loss,
+            "hours_per_week": self.hours_per_week,
             "workclass": self.workclass,
-            "fnlwgt": self.fnlwgt,
-            "education": self.education,
-            "education-num": self.education_num,
-            "marital-status": self.marital_status,
+            "marital_status": self.marital_status,
             "occupation": self.occupation,
             "relationship": self.relationship,
             "race": self.race,
             "sex": self.sex,
-            "capital-gain": self.capital_gain,
-            "capital-loss": self.capital_loss,
-            "hours-per-week": self.hours_per_week,
-            "native-country": self.native_country,
+            "native_country": self.native_country,
+            # 'education' is intentionally excluded — dropped during training
         }
 
 
