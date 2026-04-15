@@ -220,7 +220,6 @@ __marimo__/
 data/*.csv
 
 # Project: screenshots are committed (required by rubric)
-# screenshots/*.png
 
 # Project: local/generated artifacts and study notes
 logs/
@@ -229,6 +228,5 @@ logs/
 # data/data_cleaned/
 data/data_processed/
 notebooks/
-screenshots/
 docs/
 *.canvas
