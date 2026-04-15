@@ -3,6 +3,7 @@
 Test coverage
 -------------
 - GET /          : status code + welcome message content
+- GET /health    : health-check contract for deploy probes
 - POST /predict  : one test per possible model output (">50K" and "<=50K")
 - POST /predict  : Pydantic validation (422 on bad payloads)
 """
@@ -64,6 +65,14 @@ def test_root_returns_welcome_message() -> None:
     body = response.json()
     assert "message" in body
     assert "Welcome" in body["message"]
+
+
+def test_health_returns_ok_status() -> None:
+    """GET /health should return 200 with a simple readiness payload."""
+    response = client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
 
 
 # ── POST /predict — one test per model output ──────────────────────────────────
