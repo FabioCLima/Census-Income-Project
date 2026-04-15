@@ -6,8 +6,9 @@ WORKDIR /app
 # Install uv for fast, reproducible dependency resolution
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 
-# Copy dependency manifest first for better layer caching
-COPY pyproject.toml uv.lock ./
+# Copy everything setuptools needs to build the local package
+COPY pyproject.toml uv.lock README.md ./
+COPY src/ ./src/
 
 # Install only production dependencies into an isolated venv
 RUN uv sync --no-dev --frozen
