@@ -34,6 +34,12 @@ def root() -> dict[str, str]:
     }
 
 
+@app.get("/health")
+def health() -> dict[str, str]:
+    """Lightweight health-check endpoint for uptime probes and deploy checks."""
+    return {"status": "ok"}
+
+
 @app.post("/predict", response_model=PredictResponse)
 def predict(request: PredictRequest) -> PredictResponse:
     prediction = predict_from_payload(request.to_feature_dict())
