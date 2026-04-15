@@ -9,6 +9,7 @@ requires-python = ">=3.13"
 dependencies = [
     "fastapi>=0.135.3",
     "joblib>=1.5.2",
+    "loguru>=0.7.3",
     "matplotlib>=3.10.8",
     "pandas>=2.3.3",
     "pydantic>=2.13.0",
