@@ -224,8 +224,9 @@ data/*.csv
 
 # Project: local/generated artifacts and study notes
 logs/
-data/data_raw/
-data/data_cleaned/
+# data/ CSVs are committed so CI tests can load real data
+# data/data_raw/
+# data/data_cleaned/
 data/data_processed/
 notebooks/
 screenshots/
