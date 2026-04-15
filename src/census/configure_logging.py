@@ -33,10 +33,7 @@ _CONSOLE_FORMAT = (
 )
 
 _FILE_FORMAT = (
-    "{time:YYYY-MM-DD HH:mm:ss.SSS} | "
-    "{level:<8} | "
-    "{name}:{function}:{line} — "
-    "{message}"
+    "{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} — {message}"
 )
 
 

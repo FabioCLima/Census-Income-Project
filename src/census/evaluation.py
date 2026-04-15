@@ -44,7 +44,7 @@ MODEL_DIR = _PROJECT_ROOT / "model"
 RESULTS_PATH = MODEL_DIR / "cv_results.csv"
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-POSITIVE_LABEL: int = 1   # >50K encoded as 1 by split_features_target()
+POSITIVE_LABEL: int = 1  # >50K encoded as 1 by split_features_target()
 N_SPLITS: int = 5
 RANDOM_STATE: int = 42
 
@@ -116,9 +116,7 @@ def compute_metrics(
     recall = float(
         recall_score(target, predictions, pos_label=POSITIVE_LABEL, zero_division=0)
     )
-    f1 = float(
-        f1_score(target, predictions, pos_label=POSITIVE_LABEL, zero_division=0)
-    )
+    f1 = float(f1_score(target, predictions, pos_label=POSITIVE_LABEL, zero_division=0))
     fbeta = float(
         fbeta_score(
             target, predictions, beta=1, pos_label=POSITIVE_LABEL, zero_division=0

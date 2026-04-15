@@ -13,20 +13,20 @@ class PredictRequest(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    age: int
-    workclass: str
-    fnlwgt: int
-    education: str
-    education_num: int = Field(..., alias="education-num")
-    marital_status: str = Field(..., alias="marital-status")
-    occupation: str
-    relationship: str
-    race: str
-    sex: str
-    capital_gain: int = Field(..., alias="capital-gain")
-    capital_loss: int = Field(..., alias="capital-loss")
-    hours_per_week: int = Field(..., alias="hours-per-week")
-    native_country: str = Field(..., alias="native-country")
+    age: int = Field(..., examples=[39])
+    workclass: str = Field(..., examples=["State-gov"])
+    fnlwgt: int = Field(..., examples=[77516])
+    education: str = Field(..., examples=["Bachelors"])
+    education_num: int = Field(..., alias="education-num", examples=[13])
+    marital_status: str = Field(..., alias="marital-status", examples=["Never-married"])
+    occupation: str = Field(..., examples=["Adm-clerical"])
+    relationship: str = Field(..., examples=["Not-in-family"])
+    race: str = Field(..., examples=["White"])
+    sex: str = Field(..., examples=["Male"])
+    capital_gain: int = Field(..., alias="capital-gain", examples=[2174])
+    capital_loss: int = Field(..., alias="capital-loss", examples=[0])
+    hours_per_week: int = Field(..., alias="hours-per-week", examples=[40])
+    native_country: str = Field(..., alias="native-country", examples=["United-States"])
 
     def to_feature_dict(self) -> dict[str, object]:
         """Return a cleaned feature dict matching the trained pipeline schema.
@@ -41,7 +41,7 @@ class PredictRequest(BaseModel):
         """
         return {
             "age": self.age,
-            "fnlgt": self.fnlwgt,            # renamed: fnlwgt → fnlgt
+            "fnlgt": self.fnlwgt,  # renamed: fnlwgt → fnlgt
             "education_num": self.education_num,
             "capital_gain": self.capital_gain,
             "capital_loss": self.capital_loss,

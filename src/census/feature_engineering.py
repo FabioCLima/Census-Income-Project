@@ -73,8 +73,13 @@ def plot_missing_values(
 
     if missing_pct.empty:
         ax.text(
-            0.5, 0.5, "No missing values found",
-            ha="center", va="center", transform=ax.transAxes, fontsize=13,
+            0.5,
+            0.5,
+            "No missing values found",
+            ha="center",
+            va="center",
+            transform=ax.transAxes,
+            fontsize=13,
         )
         ax.set_title(title)
         return fig
@@ -92,9 +97,12 @@ def plot_missing_values(
 
     for bar, pct in zip(bars, missing_pct.values, strict=True):
         ax.text(
-            bar.get_width() + 0.1, bar.get_y() + bar.get_height() / 2,
+            bar.get_width() + 0.1,
+            bar.get_y() + bar.get_height() / 2,
             f"{pct:.2f}%",
-            va="center", ha="left", fontsize=10,
+            va="center",
+            ha="left",
+            fontsize=10,
         )
 
     ax.set_xlabel("Missing (%)")
@@ -105,9 +113,13 @@ def plot_missing_values(
     # Imputer strategy annotation
     ax.axvline(0, color="black", linewidth=0.8)
     fig.text(
-        0.99, 0.01,
+        0.99,
+        0.01,
         "Imputer strategy: most_frequent  (avoids unseen category at inference)",
-        ha="right", va="bottom", fontsize=8, color="grey",
+        ha="right",
+        va="bottom",
+        fontsize=8,
+        color="grey",
     )
     fig.tight_layout()
     return fig
@@ -147,9 +159,9 @@ def plot_numeric_distributions(
 
     # Fit scaler on the provided data (training split in practice)
     scaler = StandardScaler()
-    scaled_array = scaler.fit_transform(features[NUMERIC_FEATURES].fillna(
-        features[NUMERIC_FEATURES].median()
-    ))
+    scaled_array = scaler.fit_transform(
+        features[NUMERIC_FEATURES].fillna(features[NUMERIC_FEATURES].median())
+    )
     scaled_df = pd.DataFrame(scaled_array, columns=NUMERIC_FEATURES)
 
     for col_idx, col in enumerate(NUMERIC_FEATURES):
@@ -185,9 +197,14 @@ def plot_numeric_distributions(
             label="mean=0",
         )
         ax_scaled.text(
-            0.97, 0.93, f"μ={scaled_values.mean():.2f}\nσ={scaled_values.std():.2f}",
-            transform=ax_scaled.transAxes, ha="right", va="top",
-            fontsize=7.5, color="black",
+            0.97,
+            0.93,
+            f"μ={scaled_values.mean():.2f}\nσ={scaled_values.std():.2f}",
+            transform=ax_scaled.transAxes,
+            ha="right",
+            va="top",
+            fontsize=7.5,
+            color="black",
             bbox={"boxstyle": "round,pad=0.2", "facecolor": "white", "alpha": 0.7},
         )
 
@@ -327,20 +344,30 @@ def plot_categorical_target_rates(
             "#e05c5c" if r >= 0.30 else "#f0a040" if r >= 0.15 else "#4878cf"
             for r in rates["positive_rate"]
         ]
-        ax.barh(rates.index.astype(str), rates["positive_rate"], color=bar_colours,
-                edgecolor="white")
+        ax.barh(
+            rates.index.astype(str),
+            rates["positive_rate"],
+            color=bar_colours,
+            edgecolor="white",
+        )
         ax.set_title(col, fontsize=10)
         ax.set_xlabel(">50K rate")
         ax.set_xlim(0, 1)
-        ax.axvline(binary_target.mean(), color="black", linestyle="--",
-                   linewidth=1.0, label=f"overall ({binary_target.mean():.1%})")
+        ax.axvline(
+            binary_target.mean(),
+            color="black",
+            linestyle="--",
+            linewidth=1.0,
+            label=f"overall ({binary_target.mean():.1%})",
+        )
         ax.legend(fontsize=7, loc="lower right")
 
         for y_pos, (rate, n) in enumerate(
             zip(rates["positive_rate"], rates["n"], strict=True)
         ):
-            ax.text(rate + 0.01, y_pos, f"{rate:.1%} (n={n:,})",
-                    va="center", fontsize=7)
+            ax.text(
+                rate + 0.01, y_pos, f"{rate:.1%} (n={n:,})", va="center", fontsize=7
+            )
 
     # Hide unused axes
     for ax in axes_flat[n_features:]:

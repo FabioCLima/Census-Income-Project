@@ -41,7 +41,7 @@ MODEL_DIR = _PROJECT_ROOT / "model"
 PIPELINE_PATH = MODEL_DIR / "census_pipeline.pkl"
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-POSITIVE_LABEL: int = 1   # >50K encoded as 1 by split_features_target()
+POSITIVE_LABEL: int = 1  # >50K encoded as 1 by split_features_target()
 
 
 # ── Pipeline loading ──────────────────────────────────────────────────────────
@@ -68,9 +68,7 @@ def load_pipeline(path: Path | str = PIPELINE_PATH) -> Pipeline | None:
         logger.info("load_pipeline | loaded | path={}", dest)
         return pipeline
     except Exception as exc:
-        logger.error(
-            "load_pipeline | failed to load | path={} | error={}", dest, exc
-        )
+        logger.error("load_pipeline | failed to load | path={} | error={}", dest, exc)
         return None
 
 
