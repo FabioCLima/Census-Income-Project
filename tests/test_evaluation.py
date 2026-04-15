@@ -173,9 +173,7 @@ class TestCrossValidatePipeline:
         from sklearn.utils.validation import check_is_fitted
 
         pipeline = build_pipeline(build_baseline())
-        cross_validate_pipeline(
-            pipeline, small_features, small_target, n_splits=3
-        )
+        cross_validate_pipeline(pipeline, small_features, small_target, n_splits=3)
         with pytest.raises(NotFittedError):
             check_is_fitted(pipeline)
 
@@ -206,23 +204,17 @@ class TestBuildResultsTable:
         assert isinstance(results, pd.DataFrame)
 
     def test_has_required_columns(self) -> None:
-        df = build_results_table(
-            {"Model": self._make_fold_metrics("Model")}
-        )
+        df = build_results_table({"Model": self._make_fold_metrics("Model")})
         expected = {"model_name", "fold", "precision", "recall", "f1", "fbeta"}
         assert expected.issubset(set(df.columns))
 
     def test_contains_fold_rows(self) -> None:
-        df = build_results_table(
-            {"Model": self._make_fold_metrics("Model", n_folds=3)}
-        )
+        df = build_results_table({"Model": self._make_fold_metrics("Model", n_folds=3)})
         fold_rows = df[df["fold"].str.startswith("cv_fold")]
         assert len(fold_rows) == 3
 
     def test_contains_mean_and_std_rows(self) -> None:
-        df = build_results_table(
-            {"Model": self._make_fold_metrics("Model", n_folds=3)}
-        )
+        df = build_results_table({"Model": self._make_fold_metrics("Model", n_folds=3)})
         assert "mean" in df["fold"].values
         assert "std" in df["fold"].values
 

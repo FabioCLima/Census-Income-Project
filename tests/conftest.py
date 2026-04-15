@@ -15,24 +15,44 @@ def small_features() -> pd.DataFrame:
     """
     n = 60
     workclass = [
-        "Private", "Self-emp-not-inc", "Private",
-        "Self-emp-inc", "Private", "Federal-gov",
+        "Private",
+        "Self-emp-not-inc",
+        "Private",
+        "Self-emp-inc",
+        "Private",
+        "Federal-gov",
     ] * (n // 6)
     marital_status = [
-        "Never-married", "Married-civ-spouse", "Never-married",
-        "Married-civ-spouse", "Divorced", "Married-civ-spouse",
+        "Never-married",
+        "Married-civ-spouse",
+        "Never-married",
+        "Married-civ-spouse",
+        "Divorced",
+        "Married-civ-spouse",
     ] * (n // 6)
     occupation = [
-        "Adm-clerical", "Exec-managerial", "Handlers-cleaners",
-        "Prof-specialty", "Sales", "Craft-repair",
+        "Adm-clerical",
+        "Exec-managerial",
+        "Handlers-cleaners",
+        "Prof-specialty",
+        "Sales",
+        "Craft-repair",
     ] * (n // 6)
     relationship = [
-        "Not-in-family", "Husband", "Own-child",
-        "Husband", "Unmarried", "Husband",
+        "Not-in-family",
+        "Husband",
+        "Own-child",
+        "Husband",
+        "Unmarried",
+        "Husband",
     ] * (n // 6)
     race = [
-        "White", "White", "Black",
-        "Asian-Pac-Islander", "White", "White",
+        "White",
+        "White",
+        "Black",
+        "Asian-Pac-Islander",
+        "White",
+        "White",
     ] * (n // 6)
 
     return pd.DataFrame(

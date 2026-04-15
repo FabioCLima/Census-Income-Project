@@ -142,9 +142,7 @@ class TestTrainPipeline:
 
 
 class TestSavePipeline:
-    def test_creates_file(
-        self, tmp_path: Path, fitted_pipeline: Pipeline
-    ) -> None:
+    def test_creates_file(self, tmp_path: Path, fitted_pipeline: Pipeline) -> None:
         dest = save_pipeline(fitted_pipeline, tmp_path / "model.pkl")
         assert dest.exists()
 
@@ -161,9 +159,7 @@ class TestSavePipeline:
         save_pipeline(fitted_pipeline, nested)
         assert nested.exists()
 
-    def test_file_is_loadable(
-        self, tmp_path: Path, fitted_pipeline: Pipeline
-    ) -> None:
+    def test_file_is_loadable(self, tmp_path: Path, fitted_pipeline: Pipeline) -> None:
         dest = save_pipeline(fitted_pipeline, tmp_path / "model.pkl")
         loaded = joblib.load(dest)
         assert isinstance(loaded, Pipeline)

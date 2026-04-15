@@ -18,9 +18,7 @@ from census.train_model import build_baseline, build_pipeline, train_pipeline
 
 
 @pytest.fixture()
-def fitted_pipeline(
-    small_features: pd.DataFrame, small_target: pd.Series
-) -> Pipeline:
+def fitted_pipeline(small_features: pd.DataFrame, small_target: pd.Series) -> Pipeline:
     pipeline = build_pipeline(build_baseline())
     return train_pipeline(pipeline, small_features, small_target)
 

@@ -28,17 +28,13 @@ from census.train_model import (
 
 
 @pytest.fixture()
-def fitted_pipeline(
-    small_features: pd.DataFrame, small_target: pd.Series
-) -> Pipeline:
+def fitted_pipeline(small_features: pd.DataFrame, small_target: pd.Series) -> Pipeline:
     pipeline = build_pipeline(build_baseline())
     return train_pipeline(pipeline, small_features, small_target)
 
 
 @pytest.fixture()
-def saved_pipeline_path(
-    tmp_path: Path, fitted_pipeline: Pipeline
-) -> Path:
+def saved_pipeline_path(tmp_path: Path, fitted_pipeline: Pipeline) -> Path:
     dest = tmp_path / "model" / "pipeline.pkl"
     dest.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(fitted_pipeline, dest)
@@ -72,9 +68,7 @@ class TestLoadPipeline:
         result = load_pipeline(tmp_path / "nonexistent.pkl")
         assert result is None
 
-    def test_returns_pipeline_for_valid_file(
-        self, saved_pipeline_path: Path
-    ) -> None:
+    def test_returns_pipeline_for_valid_file(self, saved_pipeline_path: Path) -> None:
         result = load_pipeline(saved_pipeline_path)
         assert isinstance(result, Pipeline)
 

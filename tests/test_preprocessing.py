@@ -300,58 +300,58 @@ class TestBuildPreprocessor:
 
     def test_numeric_pipeline_contains_imputer(self) -> None:
         preprocessor = build_preprocessor()
-        num_pipe = dict(
-            (name, pipe) for name, pipe, _ in preprocessor.transformers
-        )["num"]
+        num_pipe = dict((name, pipe) for name, pipe, _ in preprocessor.transformers)[
+            "num"
+        ]
         assert isinstance(num_pipe, Pipeline)
         step_types = [type(step) for _, step in num_pipe.steps]
         assert SimpleImputer in step_types
 
     def test_numeric_pipeline_contains_scaler(self) -> None:
         preprocessor = build_preprocessor()
-        num_pipe = dict(
-            (name, pipe) for name, pipe, _ in preprocessor.transformers
-        )["num"]
+        num_pipe = dict((name, pipe) for name, pipe, _ in preprocessor.transformers)[
+            "num"
+        ]
         step_types = [type(step) for _, step in num_pipe.steps]
         assert StandardScaler in step_types
 
     def test_numeric_imputer_uses_median(self) -> None:
         preprocessor = build_preprocessor()
-        num_pipe = dict(
-            (name, pipe) for name, pipe, _ in preprocessor.transformers
-        )["num"]
+        num_pipe = dict((name, pipe) for name, pipe, _ in preprocessor.transformers)[
+            "num"
+        ]
         imputer = dict(num_pipe.steps)["imputer"]
         assert imputer.strategy == "median"
 
     def test_categorical_pipeline_contains_imputer(self) -> None:
         preprocessor = build_preprocessor()
-        cat_pipe = dict(
-            (name, pipe) for name, pipe, _ in preprocessor.transformers
-        )["cat"]
+        cat_pipe = dict((name, pipe) for name, pipe, _ in preprocessor.transformers)[
+            "cat"
+        ]
         step_types = [type(step) for _, step in cat_pipe.steps]
         assert SimpleImputer in step_types
 
     def test_categorical_pipeline_contains_encoder(self) -> None:
         preprocessor = build_preprocessor()
-        cat_pipe = dict(
-            (name, pipe) for name, pipe, _ in preprocessor.transformers
-        )["cat"]
+        cat_pipe = dict((name, pipe) for name, pipe, _ in preprocessor.transformers)[
+            "cat"
+        ]
         step_types = [type(step) for _, step in cat_pipe.steps]
         assert OrdinalEncoder in step_types
 
     def test_categorical_imputer_uses_most_frequent(self) -> None:
         preprocessor = build_preprocessor()
-        cat_pipe = dict(
-            (name, pipe) for name, pipe, _ in preprocessor.transformers
-        )["cat"]
+        cat_pipe = dict((name, pipe) for name, pipe, _ in preprocessor.transformers)[
+            "cat"
+        ]
         imputer = dict(cat_pipe.steps)["imputer"]
         assert imputer.strategy == "most_frequent"
 
     def test_ordinal_encoder_handles_unknown(self) -> None:
         preprocessor = build_preprocessor()
-        cat_pipe = dict(
-            (name, pipe) for name, pipe, _ in preprocessor.transformers
-        )["cat"]
+        cat_pipe = dict((name, pipe) for name, pipe, _ in preprocessor.transformers)[
+            "cat"
+        ]
         encoder: OrdinalEncoder = dict(cat_pipe.steps)["encoder"]
         assert encoder.handle_unknown == "use_encoded_value"
         assert encoder.unknown_value == -1
@@ -395,9 +395,7 @@ class TestFitPreprocessor:
         train_test_splits: tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series],
     ) -> None:
         X_train, X_test, _, _ = train_test_splits
-        X_train_t, X_test_t = fit_preprocessor(
-            build_preprocessor(), X_train, X_test
-        )
+        X_train_t, X_test_t = fit_preprocessor(build_preprocessor(), X_train, X_test)
         expected_cols = len(NUMERIC_FEATURES) + len(CATEGORICAL_FEATURES)
         assert X_train_t.shape[1] == expected_cols
         assert X_test_t.shape[1] == expected_cols
@@ -449,9 +447,7 @@ class TestFitPreprocessor:
         X_test_modified["capital_gain"] = 999_999
 
         preprocessor = build_preprocessor()
-        X_train_t, X_test_t = fit_preprocessor(
-            preprocessor, X_train, X_test_modified
-        )
+        X_train_t, X_test_t = fit_preprocessor(preprocessor, X_train, X_test_modified)
         # capital_gain is the 4th numeric feature (index 3)
         capital_gain_idx = NUMERIC_FEATURES.index("capital_gain")
         assert (X_test_t[:, capital_gain_idx] > 1).all()
@@ -477,9 +473,7 @@ class TestFitPreprocessor:
         df = load_cleaned_data()
         X, y = split_features_target(df)
         X_train, X_test, _, _ = split_train_test(X, y)
-        X_train_t, X_test_t = fit_preprocessor(
-            build_preprocessor(), X_train, X_test
-        )
+        X_train_t, X_test_t = fit_preprocessor(build_preprocessor(), X_train, X_test)
         expected_cols = len(NUMERIC_FEATURES) + len(CATEGORICAL_FEATURES)
         assert X_train_t.shape == (26_048, expected_cols)
         assert X_test_t.shape == (6_513, expected_cols)
@@ -489,9 +483,7 @@ class TestFitPreprocessor:
         df = load_cleaned_data()
         X, y = split_features_target(df)
         X_train, X_test, _, _ = split_train_test(X, y)
-        X_train_t, X_test_t = fit_preprocessor(
-            build_preprocessor(), X_train, X_test
-        )
+        X_train_t, X_test_t = fit_preprocessor(build_preprocessor(), X_train, X_test)
         assert not np.isnan(X_train_t).any()
         assert not np.isnan(X_test_t).any()
 
@@ -520,9 +512,7 @@ class TestValidateFeatureSchema:
         4. A 5-row Pydantic sample matches the schema      → ValueError
     """
 
-    def test_passes_on_valid_features(
-        self, features_only: pd.DataFrame
-    ) -> None:
+    def test_passes_on_valid_features(self, features_only: pd.DataFrame) -> None:
         """Valid feature DataFrame must not raise."""
         validate_feature_schema(features_only, "test_dataset")
 
@@ -535,9 +525,7 @@ class TestValidateFeatureSchema:
         with pytest.raises(ValueError, match="missing required feature columns"):
             validate_feature_schema(df, "test_dataset")
 
-    def test_error_lists_all_missing_columns(
-        self, features_only: pd.DataFrame
-    ) -> None:
+    def test_error_lists_all_missing_columns(self, features_only: pd.DataFrame) -> None:
         df = features_only.drop(columns=["age", "capital_gain"])
         with pytest.raises(ValueError) as exc_info:
             validate_feature_schema(df, "test_dataset")
@@ -583,9 +571,7 @@ class TestValidateFeatureSchema:
         with pytest.raises(TypeError, match="invalid categorical dtypes"):
             validate_feature_schema(df, "test_dataset")
 
-    def test_categorical_dtype_is_accepted(
-        self, features_only: pd.DataFrame
-    ) -> None:
+    def test_categorical_dtype_is_accepted(self, features_only: pd.DataFrame) -> None:
         """pd.CategoricalDtype is a valid dtype for categorical columns."""
         df = features_only.copy()
         df["sex"] = pd.Categorical(df["sex"])
@@ -634,9 +620,7 @@ class TestValidateFeatureSchema:
 
     # ── Extra columns (warning, no exception) ────────────────────────────────
 
-    def test_does_not_raise_on_extra_columns(
-        self, features_only: pd.DataFrame
-    ) -> None:
+    def test_does_not_raise_on_extra_columns(self, features_only: pd.DataFrame) -> None:
         df = features_only.copy()
         df["unexpected_column"] = 42
         validate_feature_schema(df, "test_dataset")  # must not raise

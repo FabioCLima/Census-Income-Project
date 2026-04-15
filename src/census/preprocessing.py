@@ -191,9 +191,7 @@ def validate_feature_schema(features: pd.DataFrame, dataset_name: str) -> None:
         if not pd.api.types.is_numeric_dtype(features[col])
     ]
     if non_numeric_columns:
-        found_dtypes = {
-            col: str(features[col].dtype) for col in non_numeric_columns
-        }
+        found_dtypes = {col: str(features[col].dtype) for col in non_numeric_columns}
         raise TypeError(
             f"{dataset_name} has non-numeric dtypes in numeric features: {found_dtypes}"
         )
