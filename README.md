@@ -1,24 +1,48 @@
-# Census Income Classification — MLOps Project
+# Census Income Classification API
 
-GitHub repository: [FabioCLima/Census-Income-Project](https://github.com/FabioCLima/Census-Income-Project)
+End-to-end MLOps project for the UCI Adult Census Income dataset. The project
+trains a binary classification model to predict whether an individual's income
+is greater than `50K` and exposes the prediction service through a FastAPI API.
 
-## Overview
+Repository: [FabioCLima/Census-Income-Project](https://github.com/FabioCLima/Census-Income-Project)
 
-End-to-end MLOps project that trains a Random Forest classifier on the UCI Adult
-Census Income dataset and deploys it as a REST API on Heroku with full CI/CD.
+## Project Overview
 
-## Project Structure
+This repository covers the core stages of an applied MLOps workflow:
 
-- `src/census/` — data loading, preprocessing, training, evaluation, inference, slicing
-- `main.py` — FastAPI application (GET welcome + POST inference)
-- `train_model.py` — training entrypoint
-- `tests/` — 185 unit and API tests
-- `model/` — trained pipeline, encoder, CV results, slice output
-- `model_card.md` — model documentation
-- `live_api_request.py` — script to POST against the live Heroku API
-- `.github/workflows/ci.yml` — CI (lint + test) and CD (deploy to Heroku on main)
+- data ingestion and preprocessing
+- model training and persistence
+- slice-based performance analysis
+- API serving with FastAPI
+- automated tests for model and API behavior
+- CI/CD support through GitHub Actions
+
+## Tech Stack
+
+- Python `>=3.13`
+- FastAPI
+- scikit-learn
+- pandas
+- joblib
+- pytest
+- Ruff
+- uv
+
+## Repository Structure
+
+- `src/census/` - dataset schema, preprocessing, model utilities, and slicing logic
+- `main.py` - FastAPI application entrypoint
+- `train_model.py` - training script for generating model artifacts
+- `tests/` - automated tests for model code and API routes
+- `model/` - trained artifacts and slice analysis outputs
+- `model_card.md` - model card documenting the trained system
+- `notebooks/` - exploratory analysis and bias study notebooks
+- `.github/workflows/ci.yml` - GitHub Actions workflow for continuous integration
 
 ## Setup
+
+Create and activate a virtual environment, then install the project
+dependencies.
 
 ```bash
 python3 -m venv .venv
@@ -27,31 +51,82 @@ pip install uv
 uv sync --all-groups
 ```
 
-## Train the model
+## Train The Model
+
+Run the training pipeline to generate the serialized model artifacts used by the
+API.
 
 ```bash
 python train_model.py
 ```
 
-## Run the API locally
+Expected outputs are written under `model/`.
+
+## Run The API Locally
+
+Start the FastAPI application with Uvicorn:
 
 ```bash
-uvicorn main:app --reload
+uv run uvicorn main:app --reload
 ```
 
-## Run tests
+Once the server is running, the API is available at `http://127.0.0.1:8000`.
+
+## API Endpoints
+
+- `GET /` returns a basic health response
+- `POST /predict` accepts a JSON payload with the expected census features and
+  returns an income prediction
+
+Example local request:
 
 ```bash
-pytest
+curl -X POST "http://127.0.0.1:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "age": 37,
+    "workclass": "Private",
+    "fnlgt": 34146,
+    "education": "Bachelors",
+    "education-num": 13,
+    "marital-status": "Married-civ-spouse",
+    "occupation": "Exec-managerial",
+    "relationship": "Husband",
+    "race": "White",
+    "sex": "Male",
+    "capital-gain": 0,
+    "capital-loss": 0,
+    "hours-per-week": 40,
+    "native-country": "United-States"
+  }'
 ```
 
-## Live API
+## Run The Test Suite
 
-Base URL: [census-income-api-7cfe90f1b0a4.herokuapp.com](https://census-income-api-7cfe90f1b0a4.herokuapp.com)
-
-- `GET /` — welcome message
-- `POST /predict` — income prediction (`>50K` or `<=50K`)
+Run the automated tests with:
 
 ```bash
-python live_api_request.py
+uv run pytest
 ```
+
+If you also want linting:
+
+```bash
+uv run ruff check .
+uv run ruff format --check .
+```
+
+## Model Documentation
+
+Additional project documentation is available in:
+
+- `model_card.md` for model-level documentation
+- `docs/rubrica.md` for rubric alignment
+- `docs/census_income_project_sprint_guide.md` for project guidance
+
+## Deployment And CI
+
+The repository includes GitHub Actions configuration in
+`.github/workflows/ci.yml` to automate code quality checks and project
+validation. This helps ensure the application is tested before promotion across
+branches or deployment targets.
