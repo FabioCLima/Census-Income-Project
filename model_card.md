@@ -62,17 +62,29 @@ Method:
 - Screening rule: disparity outside `[0.8, 1.25]` (80% rule)
 - Stability filter used in interpretation: `group_size >= 100`
 
-Key findings:
+Visual summary:
 
-- `sex=Female` shows strong disparity vs. `Male` in multiple error metrics:
-  - `fpr_disparity = 0.1938`
-  - `for_disparity = 0.3481`
-  - `fdr_disparity = 0.7760`
-- In `race`, `Black` is flagged under the same rule:
-  - `fpr_disparity = 0.2758`
-  - `for_disparity = 0.5649`
-  - `fdr_disparity = 0.7042`
-- Some race groups with very small support exhibit extreme disparities and should be treated as unstable estimates.
+### Stable sex groups (reference = `Male`)
+
+| Group | Size | FPR disp. | FNR disp. | FOR disp. | FDR disp. | 80% rule |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Female | 2158 | 0.1938 | 1.1523 | 0.3481 | 0.7760 | flagged |
+| Male | 4355 | 1.0000 | 1.0000 | 1.0000 | 1.0000 | reference |
+
+### Stable race groups (reference = `White`)
+
+| Group | Size | FPR disp. | FNR disp. | FOR disp. | FDR disp. | 80% rule |
+| --- | ---: | ---: | ---: | ---: | ---: | --- |
+| Asian-Pac-Islander | 200 | 1.1567 | 1.0004 | 1.0352 | 1.0925 | within range |
+| Black | 662 | 0.2758 | 1.1776 | 0.5649 | 0.7042 | flagged |
+| White | 5533 | 1.0000 | 1.0000 | 1.0000 | 1.0000 | reference |
+
+Interpretation:
+
+- `Female` is outside the acceptable disparity band in multiple metrics, especially `fpr_disparity`, `for_disparity`, and `fdr_disparity`.
+- `Black` is the race group most clearly flagged in the stable-size subset, with disparity values below `0.8` in multiple metrics.
+- `Asian-Pac-Islander` remains within the screening range in this run.
+- Some race groups with very small support do not appear in the stable summary and should be treated as statistically unstable rather than ignored.
 
 Conclusion:
 
