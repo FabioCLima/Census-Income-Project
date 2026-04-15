@@ -36,7 +36,7 @@ def check_root(base_url: str) -> None:
     """GET / — verify the API is live and read the welcome message."""
     url = f"{base_url}/"
     print(f"GET {url}")
-    response = requests.get(url, timeout=10)
+    response = requests.get(url, timeout=30)
     response.raise_for_status()
     print(f"  Status : {response.status_code}")
     print(f"  Body   : {response.json()}\n")
@@ -47,7 +47,7 @@ def run_inference(base_url: str, payload: dict) -> str:
     url = f"{base_url}/predict"
     print(f"POST {url}")
     print(f"  Payload: {json.dumps(payload, indent=4)}")
-    response = requests.post(url, json=payload, timeout=10)
+    response = requests.post(url, json=payload, timeout=30)
     response.raise_for_status()
     prediction: str = response.json()["prediction"]
     print(f"  Status     : {response.status_code}")

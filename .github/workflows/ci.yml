@@ -6,10 +6,18 @@ on:
   pull_request:
     branches: ["main"]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout repository
@@ -17,6 +25,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,7 +34,7 @@ jobs:
           python-version-file: ".python-version"
 
       - name: Sync dependencies
-        run: uv sync --all-groups
+        run: uv sync --all-groups --locked
 
       - name: Run Flake8 linter
         run: uv run flake8 .
@@ -38,6 +48,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -45,6 +56,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -52,14 +65,14 @@ jobs:
           python-version-file: ".python-version"
 
       - name: Sync dependencies
-        run: uv sync --all-groups
+        run: uv sync --all-groups --locked
 
       - name: Run tests with coverage
         run: uv run pytest --cov=src/census --cov-report=xml --cov-report=term-missing
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && hashFiles('coverage.xml') != ''
         with:
           name: coverage-report
           path: coverage.xml
@@ -68,6 +81,7 @@ jobs:
     name: Build Docker image
     runs-on: ubuntu-latest
     needs: [lint, test]
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
@@ -79,22 +93,44 @@ jobs:
       - name: Smoke test container
         run: |
           docker run -d --name api -p 8000:8000 census-income-api:${{ github.sha }}
-          sleep 3
-          curl --fail http://localhost:8000/ || (docker logs api && exit 1)
-          docker stop api
+          for i in {1..10}; do
+            if curl --silent --fail http://localhost:8000/ > /dev/null; then
+              exit 0
+            fi
+            sleep 3
+          done
+          docker logs api
+          exit 1
+
+      - name: Stop test container
+        if: always()
+        run: docker rm -f api
 
   deploy:
-    name: Deploy
+    name: Deploy to Heroku
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy placeholder
-        run: |
-          echo "Add your cloud deployment step here."
-          echo "Examples: push image to ECR, deploy to ECS/Cloud Run/Kubernetes."
-          echo "Image tag: census-income-api:${{ github.sha }}"
+      - name: Install Heroku CLI
+        run: curl https://cli-assets.heroku.com/install.sh | sh
+
+      - name: Log in to Heroku Container Registry
+        run: heroku container:login
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Build and push Docker image to Heroku
+        run: heroku container:push web --app ${{ secrets.HEROKU_APP_NAME }}
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+
+      - name: Release the container
+        run: heroku container:release web --app ${{ secrets.HEROKU_APP_NAME }}
+        env:
+          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
