@@ -86,7 +86,7 @@ curl -X POST "http://127.0.0.1:8000/predict" \
   -d '{
     "age": 37,
     "workclass": "Private",
-    "fnlgt": 34146,
+    "fnlwgt": 34146,
     "education": "Bachelors",
     "education-num": 13,
     "marital-status": "Married-civ-spouse",
