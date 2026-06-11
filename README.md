@@ -1,5 +1,6 @@
 # Census Income Classification API
 
+[![CI](https://github.com/FabioCLima/Census-Income-Project/actions/workflows/ci.yml/badge.svg)](https://github.com/FabioCLima/Census-Income-Project/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3.13%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/API-FastAPI-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Deployment](https://img.shields.io/badge/Deployment-Heroku-430098?logo=heroku&logoColor=white)](https://census-income-api-7cfe90f1b0a4.herokuapp.com/health)
@@ -21,6 +22,21 @@ This repository covers the core stages of an applied MLOps workflow:
 - API serving with FastAPI
 - automated tests for model and API behavior
 - CI/CD support through GitHub Actions
+
+## Results
+
+Model selection used 5-fold stratified cross-validation comparing a Decision
+Tree baseline against a Random Forest candidate (full table in
+[`model/cv_results.csv`](model/cv_results.csv)):
+
+| Model | Precision | Recall | F1 |
+| --- | ---: | ---: | ---: |
+| Decision Tree (baseline) | 0.5230 | 0.8573 | 0.6493 |
+| **Random Forest (selected)** | **0.7505** | 0.6067 | **0.6710** |
+
+Beyond aggregate metrics, the model is evaluated on demographic slices and
+audited for bias with Aequitas — see the Fairness Snapshot below and
+[`model_card.md`](model_card.md) for the full assessment.
 
 ## Architecture
 
@@ -137,9 +153,8 @@ uv run ruff format --check .
 
 Additional project documentation is available in:
 
-- `model_card.md` for model-level documentation
-- `docs/rubrica.md` for rubric alignment
-- `docs/census_income_project_sprint_guide.md` for project guidance
+Full model documentation — training data, per-slice metrics, and the complete
+Aequitas bias assessment — lives in [`model_card.md`](model_card.md).
 
 ## Fairness Snapshot
 
@@ -148,8 +163,8 @@ The project includes slice-based evaluation and an Aequitas bias study covering
 disparity values outside the screening band `[0.8, 1.25]`, which indicates
 bias risk that should be monitored before any deployment-like use.
 
-This model is for educational MLOps purposes and should not be used for
-sensitive real-world decisions. See [`model_card.md`](model_card.md) for the
+This model is a demonstration system and should not be used for sensitive
+real-world decisions. See [`model_card.md`](model_card.md) for the
 full bias assessment tables and interpretation.
 
 ## Deployment And CI
